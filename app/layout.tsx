@@ -2,21 +2,23 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'IELTS AI Practice | AI-Powered Speaking Practice',
+  title: 'SpeakFlow | AI-Powered English Speaking Practice',
   description:
-    'Master your IELTS speaking skills with AI-powered practice, expert feedback, and real-time analysis using ElevenLabs voice AI and Google Gemini.',
+    'Master English speaking with AI-powered conversations. Get CEFR-based feedback on Range, Accuracy, Fluency, Interaction, and Coherence using ElevenLabs voice AI.',
   keywords: [
-    'IELTS',
+    'English speaking',
+    'CEFR',
     'speaking practice',
     'English learning',
-    'AI tutor',
+    'AI conversation',
     'pronunciation',
     'fluency',
+    'language learning',
   ],
-  authors: [{ name: 'IELTS AI Practice Team' }],
+  authors: [{ name: 'SpeakFlow Team' }],
   openGraph: {
-    title: 'IELTS AI Practice',
-    description: 'Master your IELTS speaking with AI-powered practice and expert feedback',
+    title: 'SpeakFlow - AI English Speaking Practice',
+    description: 'Master English speaking with AI conversations and CEFR-based feedback',
     type: 'website',
   },
 };
