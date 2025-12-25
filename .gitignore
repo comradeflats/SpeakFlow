@@ -7,6 +7,14 @@ node_modules/
 .env
 .env.local
 .env.*.local
+*.env*
+
+# Sensitive files
+git_token.rtf
+*.key
+*.pem
+service-account.json
+*-credentials.json
 
 # Build and production
 .next/
