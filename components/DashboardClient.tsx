@@ -1,10 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { PracticeSession, UserStats } from '@/lib/firestore-db';
 import { ProgressChart } from './ProgressChart';
 import StatsGrid from './StatsGrid';
 import RecentSessionsList from './RecentSessionsList';
 import DashboardEmptyState from './DashboardEmptyState';
+import SessionDetailModal from './SessionDetailModal';
 import { ArrowLeft, Target } from 'lucide-react';
 import Link from 'next/link';
 import Button from './ui/Button';
@@ -95,6 +97,8 @@ function calculateStreak(sessions: PracticeSession[]): number {
 }
 
 export default function DashboardClient({ sessions, stats }: DashboardClientProps) {
+  // State for session detail modal
+  const [selectedSession, setSelectedSession] = useState<PracticeSession | null>(null);
 
   // If no sessions, show empty state
   if (sessions.length === 0) {
@@ -145,8 +149,17 @@ export default function DashboardClient({ sessions, stats }: DashboardClientProp
         <ProgressChart data={chartData} />
 
         {/* Recent Sessions */}
-        <RecentSessionsList sessions={sessions.slice(0, 10)} />
+        <RecentSessionsList
+          sessions={sessions.slice(0, 10)}
+          onSessionClick={setSelectedSession}
+        />
       </div>
+
+      {/* Session Detail Modal */}
+      <SessionDetailModal
+        session={selectedSession}
+        onClose={() => setSelectedSession(null)}
+      />
     </div>
   );
 }

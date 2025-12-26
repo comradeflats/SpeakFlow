@@ -296,6 +296,22 @@ export default function PracticePage() {
             </div>
           )}
 
+          {/* Feedback Language Selection */}
+          <div className="mb-8 max-w-3xl mx-auto">
+            <div className="bg-white rounded-lg border-2 border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-slate-dark mb-3">
+                Feedback Language
+              </h3>
+              <p className="text-sm text-slate-medium mb-4">
+                All feedback and analysis will be provided in this language
+              </p>
+              <LanguagePicker
+                selectedLanguage={feedbackLanguage}
+                onLanguageChange={setFeedbackLanguage}
+              />
+            </div>
+          </div>
+
           <Card className="p-8 text-center">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <Target className="w-8 h-8 text-blue-600" />
@@ -336,20 +352,6 @@ export default function PracticePage() {
                   Skip & Select Level
                 </Button>
               </div>
-            </div>
-
-            {/* Feedback Language Selection */}
-            <div className="mb-6 p-6 border-2 border-gray-200 rounded-lg bg-gray-50 text-left">
-              <h3 className="font-semibold text-slate-dark mb-2">
-                Feedback Language
-              </h3>
-              <p className="text-sm text-slate-medium mb-4">
-                All feedback and analysis will be provided in this language
-              </p>
-              <LanguagePicker
-                selectedLanguage={feedbackLanguage}
-                onLanguageChange={setFeedbackLanguage}
-              />
             </div>
 
             <Alert variant="info" className="text-left">
@@ -537,15 +539,6 @@ export default function PracticePage() {
             </p>
           </div>
 
-          {/* CEFR Level Selector */}
-          <div className="mb-8 max-w-4xl mx-auto">
-            <CEFRLevelSelector
-              selectedLevel={selectedLevel}
-              onChange={setSelectedLevel}
-              defaultLevel={userPreferredLevel || undefined}
-            />
-          </div>
-
           {/* Feedback Language Selection */}
           <div className="mb-8 max-w-4xl mx-auto">
             <div className="bg-white rounded-lg border-2 border-gray-200 p-6">
@@ -559,6 +552,32 @@ export default function PracticePage() {
                 selectedLanguage={feedbackLanguage}
                 onLanguageChange={setFeedbackLanguage}
               />
+            </div>
+          </div>
+
+          {/* CEFR Level Selector */}
+          <div className="mb-8 max-w-4xl mx-auto">
+            <CEFRLevelSelector
+              selectedLevel={selectedLevel}
+              onChange={setSelectedLevel}
+              defaultLevel={userPreferredLevel || undefined}
+            />
+
+            {/* Reassess Level Button */}
+            <div className="mt-4 text-center">
+              <p className="text-sm text-slate-medium mb-2">
+                Not sure about your level?
+              </p>
+              <Button
+                onClick={() => {
+                  window.location.href = '/practice?assess=true';
+                }}
+                variant="secondary"
+                className="inline-flex items-center gap-2"
+              >
+                <Target className="w-4 h-4" />
+                Reassess My Level
+              </Button>
             </div>
           </div>
 

@@ -86,6 +86,7 @@ export default function DetailedFeedbackHeatmap({
 }: DetailedFeedbackHeatmapProps) {
   const [selectedPhrase, setSelectedPhrase] = useState<number | null>(null);
   const [hoveredPhrase, setHoveredPhrase] = useState<number | null>(null);
+  const [expandedSummaryItem, setExpandedSummaryItem] = useState<number | null>(null);
 
   if (!detailedFeedback || detailedFeedback.length === 0) {
     return null;
@@ -189,9 +190,27 @@ export default function DetailedFeedbackHeatmap({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <>
+      <style jsx>{`
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            max-height: 0;
+          }
+          to {
+            opacity: 1;
+            max-height: 500px;
+          }
+        }
+
+        .animate-slideDown {
+          animation: slideDown 0.3s ease-out forwards;
+        }
+      `}</style>
+
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
           <span>🎯</span>
           Detailed Phrase Analysis
@@ -252,41 +271,71 @@ export default function DetailedFeedbackHeatmap({
       {/* Summary List */}
       <div className="space-y-3">
         <h4 className="font-semibold text-gray-800">All Issues Summary:</h4>
-        {detailedFeedback.map((item, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => setSelectedPhrase(index)}
-          >
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 mt-1">
-                <span className="text-2xl">
-                  {severityConfig[item.severity as IssueSeverity].emoji}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-800 mb-1">
-                  "{item.phrase}"
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {/* CEFR format: single criterion */}
-                  <span
-                    className={`
-                      inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs
-                      ${criterionConfig[item.criterion as CriterionType].bgMedium}
-                      ${criterionConfig[item.criterion as CriterionType].text}
-                    `}
-                  >
-                    {criterionConfig[item.criterion as CriterionType].emoji}
-                    {criterionConfig[item.criterion as CriterionType].label}
-                  </span>
+        {detailedFeedback.map((item, index) => {
+          const isExpanded = expandedSummaryItem === index;
+          return (
+            <div
+              key={index}
+              className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-all"
+            >
+              <div
+                className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => setExpandedSummaryItem(isExpanded ? null : index)}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-1">
+                    <span className="text-2xl">
+                      {severityConfig[item.severity as IssueSeverity].emoji}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-800 mb-1">
+                      "{item.phrase}"
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {/* CEFR format: single criterion */}
+                      <span
+                        className={`
+                          inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs
+                          ${criterionConfig[item.criterion as CriterionType].bgMedium}
+                          ${criterionConfig[item.criterion as CriterionType].text}
+                        `}
+                      >
+                        {criterionConfig[item.criterion as CriterionType].emoji}
+                        {criterionConfig[item.criterion as CriterionType].label}
+                      </span>
+                    </div>
+                  </div>
+                  {/* Chevron icon */}
+                  <div className="flex-shrink-0">
+                    <svg
+                      className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
               </div>
+
+              {/* Inline expansion */}
+              {isExpanded && (
+                <div className="border-t border-gray-200 bg-gray-50 p-4 animate-slideDown">
+                  <DetailedIssueCard
+                    feedbackItem={item}
+                    onClose={() => setExpandedSummaryItem(null)}
+                    inline={true}
+                  />
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -294,40 +343,45 @@ export default function DetailedFeedbackHeatmap({
 function DetailedIssueCard({
   feedbackItem,
   onClose,
+  inline = false,
 }: {
   feedbackItem: DetailedFeedbackItem;
   onClose: () => void;
+  inline?: boolean;
 }) {
   return (
-    <div className="space-y-4">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <h4 className="font-semibold text-gray-800 text-lg mb-2">Issue Details</h4>
-          <p className="text-sm text-gray-700 bg-white rounded px-3 py-2 border border-gray-200">
-            "{feedbackItem.phrase}"
-          </p>
+    <div className={inline ? 'space-y-3' : 'space-y-4'}>
+      {!inline && (
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <h4 className="font-semibold text-gray-800 text-lg mb-2">Issue Details</h4>
+            <p className="text-sm text-gray-700 bg-white rounded px-3 py-2 border border-gray-200">
+              "{feedbackItem.phrase}"
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors ml-4"
+            aria-label="Close"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
-        <button
-          onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 transition-colors ml-4"
-          aria-label="Close"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
+      )}
 
-      <div className="space-y-3">
+      <div className={inline ? '' : 'space-y-3'}>
         {/* CEFR format: single issue */}
         <div
             className={`
-              bg-white rounded-lg p-4 border-l-4
+              ${inline ? 'bg-white' : 'bg-white'}
+              rounded-lg ${inline ? 'p-3' : 'p-4'} border-l-4
               ${criterionConfig[feedbackItem.criterion as CriterionType].border}
             `}
           >
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">{criterionConfig[feedbackItem.criterion as CriterionType].emoji}</span>
+              <span className={inline ? 'text-xl' : 'text-2xl'}>{criterionConfig[feedbackItem.criterion as CriterionType].emoji}</span>
               <span className={`font-semibold ${criterionConfig[feedbackItem.criterion as CriterionType].text}`}>
                 {criterionConfig[feedbackItem.criterion as CriterionType].label}
               </span>

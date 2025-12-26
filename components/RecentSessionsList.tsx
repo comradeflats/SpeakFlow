@@ -6,6 +6,7 @@ import Card from './ui/Card';
 
 interface RecentSessionsListProps {
   sessions: PracticeSession[];
+  onSessionClick?: (session: PracticeSession) => void;
 }
 
 const formatDate = (dateString: string) => {
@@ -26,7 +27,7 @@ const getLevelVariant = (level: string): 'success' | 'info' | 'warning' | 'error
   return 'error';                     // A1-A2
 };
 
-const RecentSessionsList: React.FC<RecentSessionsListProps> = ({ sessions }) => {
+const RecentSessionsList: React.FC<RecentSessionsListProps> = ({ sessions, onSessionClick }) => {
   if (sessions.length === 0) {
     return null;
   }
@@ -65,9 +66,19 @@ const RecentSessionsList: React.FC<RecentSessionsListProps> = ({ sessions }) => 
           </thead>
           <tbody>
             {sessions.map((session) => (
-              <tr key={session.id} className="border-b border-gray-100 hover:bg-gray-50 transition-smooth">
+              <tr
+                key={session.id}
+                className="border-b border-gray-100 hover:bg-blue-50 hover:shadow-md transition-smooth cursor-pointer group"
+                onClick={() => onSessionClick?.(session)}
+              >
                 <td className="py-4 px-4 text-sm text-slate-dark">
-                  {formatDate(session.created_at)}
+                  <div className="flex items-center gap-2">
+                    {formatDate(session.created_at)}
+                    <svg className="w-4 h-4 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </div>
                 </td>
                 <td className="py-4 px-4 text-center">
                   {session.overall_level && (
@@ -100,12 +111,20 @@ const RecentSessionsList: React.FC<RecentSessionsListProps> = ({ sessions }) => 
       {/* Mobile Cards */}
       <div className="md:hidden space-y-3">
         {sessions.map((session) => (
-          <Card key={session.id} className="hover:shadow-md transition-smooth">
+          <Card
+            key={session.id}
+            className="hover:shadow-lg hover:bg-blue-50 transition-smooth cursor-pointer"
+            onClick={() => onSessionClick?.(session)}
+          >
             <div className="flex items-center justify-between mb-3">
-              <div>
+              <div className="flex items-center gap-2">
                 <p className="text-xs text-slate-medium">
                   {formatDate(session.created_at)}
                 </p>
+                <svg className="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
               </div>
               {session.overall_level && (
                 <Badge variant={getLevelVariant(session.overall_level)} className="text-lg px-3 py-1">
