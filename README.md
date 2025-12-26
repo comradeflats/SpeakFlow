@@ -111,7 +111,7 @@ SpeakFlow is an intelligent language learning platform that helps English learne
    NEXT_PUBLIC_ELEVENLABS_AGENT_B2=agent_id_for_b2_level
    NEXT_PUBLIC_ELEVENLABS_AGENT_C1=agent_id_for_c1_level
    NEXT_PUBLIC_ELEVENLABS_AGENT_C2=agent_id_for_c2_level
-   NEXT_PUBLIC_ELEVENLABS_ASSESSMENT_AGENT=agent_id_for_assessment
+   NEXT_PUBLIC_ELEVENLABS_AGENT_ASSESSMENT=agent_id_for_assessment
    ```
 
 4. **Set up Google Cloud Application Default Credentials**
