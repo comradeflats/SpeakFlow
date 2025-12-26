@@ -54,6 +54,7 @@ export default function PracticePage() {
     maxPractice: number;
   } | null>(null);
   const [practiceSessionsRemaining, setPracticeSessionsRemaining] = useState<number | null>(null);
+  const [assessmentSessionsRemaining, setAssessmentSessionsRemaining] = useState<number | null>(null);
 
   // Check if user has a preferred level on mount
   useEffect(() => {
@@ -94,18 +95,32 @@ export default function PracticePage() {
   useEffect(() => {
     const fetchSessionCounts = async () => {
       try {
-        const response = await fetch('/api/check-session-limit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'practice' })
-        });
+        // Fetch both assessment and practice limits
+        const [assessmentResponse, practiceResponse] = await Promise.all([
+          fetch('/api/check-session-limit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'assessment' })
+          }),
+          fetch('/api/check-session-limit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'practice' })
+          })
+        ]);
 
-        if (response.ok) {
-          const data = await response.json();
-          setSessionCounts(data.counts);
-          setPracticeSessionsRemaining(data.remaining);
-          console.log('📊 Session counts:', data.counts);
-          console.log('🎯 Practice sessions remaining:', data.remaining);
+        if (assessmentResponse.ok && practiceResponse.ok) {
+          const assessmentData = await assessmentResponse.json();
+          const practiceData = await practiceResponse.json();
+
+          // Both should return the same counts object, use practice data
+          setSessionCounts(practiceData.counts);
+          setPracticeSessionsRemaining(practiceData.remaining);
+          setAssessmentSessionsRemaining(assessmentData.remaining);
+
+          console.log('📊 Session counts:', practiceData.counts);
+          console.log('🎯 Assessment remaining:', assessmentData.remaining);
+          console.log('🎯 Practice sessions remaining:', practiceData.remaining);
         }
       } catch (error) {
         console.error('Error fetching session counts:', error);
@@ -243,6 +258,43 @@ export default function PracticePage() {
             <ChevronLeft size={20} />
             Back to Home
           </Link>
+
+          {/* Assessment Usage Counter */}
+          {sessionCounts && assessmentSessionsRemaining !== null && (
+            <div className="mb-8">
+              {assessmentSessionsRemaining > 0 ? (
+                <Alert variant="info" className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-900">
+                        Assessments Remaining: <span className="font-bold">{assessmentSessionsRemaining}</span> of {sessionCounts.maxAssessments}
+                      </p>
+                      <p className="text-xs text-blue-700 mt-1">
+                        The assessment takes 1:30 minutes and determines your CEFR level
+                      </p>
+                    </div>
+                  </div>
+                </Alert>
+              ) : (
+                <Alert variant="error" className="p-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-red-900 mb-2">
+                      ✅ Assessment Completed
+                    </h3>
+                    <p className="text-sm text-red-700 mb-3">
+                      You've already completed your CEFR level assessment. Watch our comprehensive demo video to see all SpeakFlow features!
+                    </p>
+                    <a
+                      href="#"
+                      className="inline-block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium"
+                    >
+                      🎥 Watch Demo Video
+                    </a>
+                  </div>
+                </Alert>
+              )}
+            </div>
+          )}
 
           <Card className="p-8 text-center">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
