@@ -20,14 +20,14 @@ const transformSessionToAnalysis = (session: PracticeSession): CEFRAnalysis => {
     interaction_level: (session.interaction_level as CEFRLevel) || 'B1',
     coherence_level: (session.coherence_level as CEFRLevel) || 'B1',
 
-    range_feedback: session.range_feedback || [],
-    accuracy_feedback: session.accuracy_feedback || [],
-    fluency_feedback: session.fluency_feedback || [],
-    interaction_feedback: session.interaction_feedback || [],
-    coherence_feedback: session.coherence_feedback || [],
+    range_feedback: (session.range_feedback as string[]) || [],
+    accuracy_feedback: (session.accuracy_feedback as string[]) || [],
+    fluency_feedback: (session.fluency_feedback as string[]) || [],
+    interaction_feedback: (session.interaction_feedback as string[]) || [],
+    coherence_feedback: (session.coherence_feedback as string[]) || [],
 
-    strengths: session.strengths || [],
-    improvements: session.improvements || [],
+    strengths: (session.strengths as string[]) || [],
+    improvements: (session.improvements as string[]) || [],
     detailed_feedback: session.pronunciation_heatmap || [],
     verbatim_transcript: session.verbatim_transcript,
   };
