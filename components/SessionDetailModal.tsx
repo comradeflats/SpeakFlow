@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { PracticeSession } from '@/lib/firestore-db';
 import { CEFRAnalysis, CEFRLevel } from '@/lib/cefr-scoring';
 import { FeedbackDisplay } from './FeedbackDisplay';
