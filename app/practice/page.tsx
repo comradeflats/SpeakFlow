@@ -316,8 +316,13 @@ export default function PracticePage() {
                 <p className="text-sm text-slate-medium mb-4">
                   Have a 1-2 minute conversation with our AI to determine your CEFR level accurately.
                 </p>
-                <Button onClick={handleStartAssessment} variant="primary" className="w-full">
-                  Assess My Level
+                <Button
+                  onClick={handleStartAssessment}
+                  variant="primary"
+                  className="w-full"
+                  disabled={assessmentSessionsRemaining === 0}
+                >
+                  {assessmentSessionsRemaining === 0 ? 'Assessment Completed' : 'Assess My Level'}
                 </Button>
               </div>
 
@@ -564,8 +569,9 @@ export default function PracticePage() {
               variant="primary"
               size="lg"
               className="w-full py-4 text-lg font-semibold"
+              disabled={practiceSessionsRemaining === 0}
             >
-              Start Practice
+              {practiceSessionsRemaining === 0 ? 'All Practice Sessions Used' : 'Start Practice'}
             </Button>
           </div>
 
