@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { PracticeSession } from '@/lib/firestore-db';
-import { CEFRAnalysis, CEFRLevel } from '@/lib/cefr-scoring';
+import { CEFRAnalysis, CEFRLevel, DetailedFeedbackItem } from '@/lib/cefr-scoring';
 import { FeedbackDisplay } from './FeedbackDisplay';
 
 interface SessionDetailModalProps {
@@ -28,7 +28,7 @@ const transformSessionToAnalysis = (session: PracticeSession): CEFRAnalysis => {
 
     strengths: Array.isArray(session.strengths) ? session.strengths : [],
     improvements: Array.isArray(session.improvements) ? session.improvements : [],
-    detailed_feedback: Array.isArray(session.pronunciation_heatmap) ? session.pronunciation_heatmap : [],
+    detailed_feedback: Array.isArray(session.pronunciation_heatmap) ? session.pronunciation_heatmap as DetailedFeedbackItem[] : [],
     verbatim_transcript: session.verbatim_transcript,
   };
 };
