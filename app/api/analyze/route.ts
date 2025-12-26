@@ -1,6 +1,6 @@
 import { analyzeESLSpeechWithAudio } from '@/lib/vertex-ai';
 import { adminAuth } from '@/lib/firebase-admin';
-import { savePracticeSession } from '@/lib/firestore-db';
+import { savePracticeSession, checkSessionLimit, incrementSessionCount } from '@/lib/firestore-db';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -28,6 +28,15 @@ export async function POST(request: NextRequest) {
 
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie);
     const userId = decodedClaims.uid;
+
+    // Check session limit
+    const limitCheck = await checkSessionLimit(userId, 'practice');
+    if (!limitCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Practice session limit reached. You have used all your practice sessions.' },
+        { status: 403 }
+      );
+    }
 
     // Decode base64 audio
     // Format: "data:audio/webm;base64,<base64data>"
@@ -96,6 +105,9 @@ export async function POST(request: NextRequest) {
       });
 
       console.log('✅ Practice session saved to Firestore with CEFR levels');
+
+      // Increment practice session count
+      await incrementSessionCount(userId, 'practice');
     } catch (dbError) {
       console.error('Failed to save to Firestore:', dbError);
       // Don't fail the request if DB save fails - return analysis anyway

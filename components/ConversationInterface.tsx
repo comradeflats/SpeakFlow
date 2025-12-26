@@ -9,6 +9,9 @@ import { getAgentIdForLevel, getTopicById, getAgentSystemPrompt, TopicId, CEFRLe
 import { AgentSpeakingIndicator } from './AgentSpeakingIndicator';
 import { ProcessingIndicator } from './ProcessingIndicator';
 
+const PRACTICE_DURATION_MS = 90000;      // 1.5 minutes (same as assessment)
+const MIN_PRACTICE_DURATION_MS = 60000;  // 1 minute minimum
+
 type ConversationState = 'idle' | 'user-speaking' | 'processing' | 'agent-speaking';
 
 interface ConversationMessage {
@@ -42,6 +45,9 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [showTranscript, setShowTranscript] = useState(true);
   const [conversationState, setConversationState] = useState<ConversationState>('idle');
+  const [conversationStartTime, setConversationStartTime] = useState<number>(0);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
   const transcriptRef = useRef<string>('');
   const hasGreetedRef = useRef<boolean>(false);
 
@@ -89,6 +95,7 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
       console.log('🔊 [onConnect] Listening for agent greeting...');
       console.log('[onConnect] Resetting hasGreetedRef to false');
       hasGreetedRef.current = false; // Reset greeting flag
+      setConversationStartTime(Date.now());
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     },
     onAudio: (audio: any) => {
@@ -187,6 +194,25 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
       hasGreetedRef.current = true; // Mark as greeted to prevent future auto-messages
     }
   }, [status]);
+
+  // Timer to track elapsed time
+  useEffect(() => {
+    if (status === 'connected' && conversationStartTime > 0) {
+      const interval = setInterval(() => {
+        setElapsedTime(Date.now() - conversationStartTime);
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [status, conversationStartTime]);
+
+  // Auto-end practice session after target duration
+  useEffect(() => {
+    if (elapsedTime >= PRACTICE_DURATION_MS && status === 'connected') {
+      console.log('⏰ Practice duration reached, ending session...');
+      handleStopConversation();
+    }
+  }, [elapsedTime, status]);
 
   // Cleanup function to fully stop audio recording
   const stopAudioRecording = useCallback(async () => {
@@ -325,6 +351,13 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
 
   const handleStopConversation = useCallback(async () => {
     try {
+      // Check minimum duration
+      if (elapsedTime < MIN_PRACTICE_DURATION_MS) {
+        setError(`Please continue the conversation for at least ${Math.ceil((MIN_PRACTICE_DURATION_MS - elapsedTime) / 1000)} more seconds.`);
+        return;
+      }
+
+      setError(null); // Clear any previous errors
       console.log('🛑 Stopping conversation...');
 
       // Stop ElevenLabs session
@@ -362,7 +395,7 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
     } catch (error) {
       console.error('Failed to stop conversation:', error);
     }
-  }, [audioChunks, onComplete, endSession, stopAudioRecording]);
+  }, [elapsedTime, audioChunks, onComplete, endSession, stopAudioRecording]);
 
   // Auto-start conversation when component mounts
   useEffect(() => {
@@ -398,6 +431,16 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
     };
   }, []); // Empty deps - cleanup only on true unmount
 
+  const formatTime = (ms: number): string => {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const progress = Math.min((elapsedTime / PRACTICE_DURATION_MS) * 100, 100);
+  const remainingTime = Math.max(0, PRACTICE_DURATION_MS - elapsedTime);
+
   return (
     <div className="flex flex-col h-screen bg-white rounded-xl overflow-hidden">
       {/* Header */}
@@ -411,7 +454,7 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
                   {topicData?.name || topic}
                 </h2>
                 <p className="text-slate-medium text-sm">
-                  Level: {cefrLevel} | Suggested duration: 3-5 minutes
+                  Level: {cefrLevel} | Duration: 1:30 minutes
                 </p>
               </div>
             </div>
@@ -544,6 +587,36 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
             </span>
           </div>
         </div>
+
+        {/* Timer Progress */}
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm font-medium text-gray-700">
+              Practice Progress
+            </span>
+            <span className="text-sm text-gray-600">
+              {formatTime(elapsedTime)} / {formatTime(PRACTICE_DURATION_MS)}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div
+              className="bg-ocean-600 h-3 rounded-full transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          {remainingTime > 0 && (
+            <p className="text-xs text-gray-500 mt-1">
+              {Math.ceil(remainingTime / 1000)}s remaining
+            </p>
+          )}
+        </div>
+
+        {/* Error Display */}
+        {error && (
+          <Alert variant="error" className="mb-6">
+            {error}
+          </Alert>
+        )}
 
         {/* Helpful Tips */}
         <div className="mb-6">

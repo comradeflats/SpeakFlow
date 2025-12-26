@@ -1,4 +1,5 @@
 import { adminDb } from './firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { TopicId, CEFRLevel } from './conversation-topics';
 import { cefrToNumeric } from './cefr-scoring';
 
@@ -12,6 +13,9 @@ export interface User {
   last_level_assessment?: string; // ISO timestamp of last level assessment
   preferred_topics?: TopicId[];
   full_name?: string;
+  assessmentCount?: number; // Number of completed assessments
+  practiceSessionCount?: number; // Number of completed practice sessions
+  lastSessionDate?: string; // ISO timestamp of last session
 }
 
 export interface PracticeSession {
@@ -478,4 +482,99 @@ export function calculateImprovementTrend(sessions: PracticeSession[]): {
   const trend = slope > 0.1 ? 'improving' : slope < -0.1 ? 'declining' : 'stable';
 
   return { trend, rate: slope };
+}
+
+/**
+ * Increment session count for a user
+ * Used to track usage limits during judging period
+ */
+export async function incrementSessionCount(
+  userId: string,
+  type: 'assessment' | 'practice'
+): Promise<void> {
+  try {
+    const userRef = adminDb.collection('users').doc(userId);
+    const field = type === 'assessment' ? 'assessmentCount' : 'practiceSessionCount';
+
+    // Use Firestore FieldValue.increment to atomically increment the counter
+    await userRef.set({
+      [field]: FieldValue.increment(1),
+      lastSessionDate: new Date().toISOString(),
+      updated_at: new Date(),
+    }, { merge: true });
+
+    console.log(`✅ Incremented ${type} count for user ${userId}`);
+  } catch (error) {
+    console.error(`Error incrementing ${type} count:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Check if user has reached session limit
+ * Returns allowed status and remaining session count
+ */
+export async function checkSessionLimit(
+  userId: string,
+  type: 'assessment' | 'practice'
+): Promise<{ allowed: boolean; remaining: number }> {
+  try {
+    const userRef = adminDb.collection('users').doc(userId);
+    const userDoc = await userRef.get();
+    const data = userDoc.data();
+
+    const maxAssessments = parseInt(process.env.NEXT_PUBLIC_MAX_ASSESSMENTS_PER_USER || '1');
+    const maxPractice = parseInt(process.env.NEXT_PUBLIC_MAX_PRACTICE_SESSIONS_PER_USER || '2');
+
+    if (type === 'assessment') {
+      const count = data?.assessmentCount || 0;
+      return {
+        allowed: count < maxAssessments,
+        remaining: Math.max(0, maxAssessments - count)
+      };
+    } else {
+      const count = data?.practiceSessionCount || 0;
+      return {
+        allowed: count < maxPractice,
+        remaining: Math.max(0, maxPractice - count)
+      };
+    }
+  } catch (error) {
+    console.error(`Error checking ${type} limit:`, error);
+    // On error, allow the session to prevent blocking users
+    return { allowed: true, remaining: 1 };
+  }
+}
+
+/**
+ * Get session counts for UI display
+ * Shows current usage and max limits
+ */
+export async function getSessionCounts(userId: string): Promise<{
+  assessments: number;
+  practice: number;
+  maxAssessments: number;
+  maxPractice: number;
+}> {
+  try {
+    const userRef = adminDb.collection('users').doc(userId);
+    const userDoc = await userRef.get();
+    const data = userDoc.data();
+
+    return {
+      assessments: data?.assessmentCount || 0,
+      practice: data?.practiceSessionCount || 0,
+      maxAssessments: parseInt(process.env.NEXT_PUBLIC_MAX_ASSESSMENTS_PER_USER || '1'),
+      maxPractice: parseInt(process.env.NEXT_PUBLIC_MAX_PRACTICE_SESSIONS_PER_USER || '2')
+    };
+  } catch (error) {
+    console.error('Error getting session counts:', error);
+    // Return defaults on error
+    return {
+      assessments: 0,
+      practice: 0,
+      maxAssessments: 1,
+      maxPractice: 2
+    };
+  }
 }

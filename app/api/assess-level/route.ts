@@ -1,6 +1,6 @@
 import { analyzeESLSpeechWithAudioForAssessment } from '@/lib/vertex-ai';
 import { adminAuth } from '@/lib/firebase-admin';
-import { saveUserPreferredLevel } from '@/lib/firestore-db';
+import { saveUserPreferredLevel, checkSessionLimit, incrementSessionCount } from '@/lib/firestore-db';
 import { CEFRLevel } from '@/lib/conversation-topics';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -37,6 +37,15 @@ export async function POST(request: NextRequest) {
 
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie);
     const userId = decodedClaims.uid;
+
+    // Check session limit
+    const limitCheck = await checkSessionLimit(userId, 'assessment');
+    if (!limitCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Assessment limit reached. You have already completed your assessment.' },
+        { status: 403 }
+      );
+    }
 
     // Decode base64 audio
     // Format: "data:audio/webm;base64,<base64data>"
@@ -102,6 +111,9 @@ export async function POST(request: NextRequest) {
 
     // Save assessed level as user's preferred level
     await saveUserPreferredLevel(userId, assessedLevel);
+
+    // Increment assessment count
+    await incrementSessionCount(userId, 'assessment');
 
     // Add debugging logs for type conversion
     if (!Array.isArray(analysis.strengths)) {

@@ -46,6 +46,15 @@ export default function PracticePage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [conversationKey, setConversationKey] = useState(0); // Stable key for conversation instance
 
+  // Session limit tracking
+  const [sessionCounts, setSessionCounts] = useState<{
+    assessments: number;
+    practice: number;
+    maxAssessments: number;
+    maxPractice: number;
+  } | null>(null);
+  const [practiceSessionsRemaining, setPracticeSessionsRemaining] = useState<number | null>(null);
+
   // Check if user has a preferred level on mount
   useEffect(() => {
     const checkPreferredLevel = async () => {
@@ -79,6 +88,31 @@ export default function PracticePage() {
     };
 
     checkPreferredLevel();
+  }, []);
+
+  // Fetch session counts on mount
+  useEffect(() => {
+    const fetchSessionCounts = async () => {
+      try {
+        const response = await fetch('/api/check-session-limit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'practice' })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setSessionCounts(data.counts);
+          setPracticeSessionsRemaining(data.remaining);
+          console.log('📊 Session counts:', data.counts);
+          console.log('🎯 Practice sessions remaining:', data.remaining);
+        }
+      } catch (error) {
+        console.error('Error fetching session counts:', error);
+      }
+    };
+
+    fetchSessionCounts();
   }, []);
 
   // Load and persist feedback language preference
@@ -400,6 +434,43 @@ export default function PracticePage() {
             Back to Home
           </Link>
 
+          {/* Session Usage Counter */}
+          {sessionCounts && practiceSessionsRemaining !== null && (
+            <div className="mb-8 max-w-4xl mx-auto">
+              {practiceSessionsRemaining > 0 ? (
+                <Alert variant="info" className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-900">
+                        Practice Sessions Remaining: <span className="font-bold">{practiceSessionsRemaining}</span> of {sessionCounts.maxPractice}
+                      </p>
+                      <p className="text-xs text-blue-700 mt-1">
+                        Each conversation lasts 1:30 minutes and provides detailed feedback
+                      </p>
+                    </div>
+                  </div>
+                </Alert>
+              ) : (
+                <Alert variant="error" className="p-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-red-900 mb-2">
+                      ✅ Practice Sessions Completed
+                    </h3>
+                    <p className="text-sm text-red-700 mb-3">
+                      You've used all {sessionCounts.maxPractice} practice sessions. Watch our comprehensive demo video to see all SpeakFlow features!
+                    </p>
+                    <a
+                      href="#"
+                      className="inline-block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium"
+                    >
+                      🎥 Watch Demo Video
+                    </a>
+                  </div>
+                </Alert>
+              )}
+            </div>
+          )}
+
           <div className="mb-12 text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-slate-dark mb-3">
               Ready to Practice?
@@ -452,7 +523,7 @@ export default function PracticePage() {
               <Lightbulb size={20} className="flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm">
-                  <strong>Pro Tip:</strong> Click Start Practice to begin a natural conversation. The AI will guide you through the discussion and provide detailed feedback. Conversations typically last 3-5 minutes. Don't worry about making mistakes - just focus on practicing!
+                  <strong>Pro Tip:</strong> Click Start Practice to begin a natural conversation. The AI will guide you through the discussion and provide detailed feedback. Conversations last 1:30 minutes (90 seconds). Don't worry about making mistakes - just focus on practicing!
                 </p>
               </div>
             </Alert>
