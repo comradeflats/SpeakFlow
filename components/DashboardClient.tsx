@@ -108,7 +108,16 @@ export default function DashboardClient({ sessions, stats }: DashboardClientProp
   // Transform data for components
   const chartData = transformSessionsForChart(sessions);
   const streak = calculateStreak(sessions);
-  const bestScore = Math.max(...sessions.map(s => s.overall_score || 0));
+  const bestScore = Math.max(
+    ...sessions.map(session => {
+      // If session has CEFR level, convert to numeric
+      if (session.overall_level) {
+        return cefrToNumeric(session.overall_level);
+      }
+      // Fallback to legacy numeric score
+      return session.overall_score || 0;
+    })
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
