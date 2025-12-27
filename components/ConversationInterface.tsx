@@ -9,8 +9,8 @@ import { getAgentIdForLevel, getTopicById, getAgentSystemPrompt, TopicId, CEFRLe
 import { AgentSpeakingIndicator } from './AgentSpeakingIndicator';
 import { ProcessingIndicator } from './ProcessingIndicator';
 
-const PRACTICE_DURATION_MS = 90000;      // 1.5 minutes (same as assessment)
-const MIN_PRACTICE_DURATION_MS = 60000;  // 1 minute minimum
+const PRACTICE_DURATION_MS = 90000;      // 1.5 minutes (90 seconds max)
+const MIN_PRACTICE_DURATION_MS = 30000;  // 30 seconds minimum
 
 type ConversationState = 'idle' | 'user-speaking' | 'processing' | 'agent-speaking';
 
@@ -462,7 +462,7 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
                   {topicData?.name || topic}
                 </h2>
                 <p className="text-slate-medium text-sm">
-                  Level: {cefrLevel} | Duration: 1:30 minutes
+                  Level: {cefrLevel} | Duration: 30-90 seconds
                 </p>
               </div>
             </div>

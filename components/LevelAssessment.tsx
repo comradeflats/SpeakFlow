@@ -9,8 +9,8 @@ import { getAssessmentAgentId, CEFRLevel } from '@/lib/conversation-topics';
 import { AgentSpeakingIndicator } from './AgentSpeakingIndicator';
 import { ProcessingIndicator } from './ProcessingIndicator';
 
-const ASSESSMENT_DURATION_MS = 90000; // 1.5 minutes
-const MIN_ASSESSMENT_DURATION_MS = 60000; // 1 minute minimum
+const ASSESSMENT_DURATION_MS = 90000; // 1.5 minutes (90 seconds max)
+const MIN_ASSESSMENT_DURATION_MS = 30000; // 30 seconds minimum
 
 interface LevelAssessmentProps {
   onComplete: (result: AssessmentResult) => void;

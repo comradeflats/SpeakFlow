@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { PracticeSession, UserStats } from '@/lib/firestore-db';
+import { cefrToNumeric, CEFRLevel } from '@/lib/cefr-scoring';
 import { ProgressChart } from './ProgressChart';
 import StatsGrid from './StatsGrid';
 import RecentSessionsList from './RecentSessionsList';
@@ -20,16 +21,6 @@ interface DashboardClientProps {
 function transformSessionsForChart(sessions: PracticeSession[]) {
   if (sessions.length === 0) return [];
 
-  // Import the cefrToNumeric function for converting CEFR levels to numbers
-  const cefrToNumeric = (level: string): number => {
-    const mapping: Record<string, number> = {
-      'A1': 1, 'A1+': 1.5, 'A2': 2, 'A2+': 2.5,
-      'B1': 3, 'B1+': 3.5, 'B2': 4, 'B2+': 4.5,
-      'C1': 5, 'C1+': 5.5, 'C2': 6
-    };
-    return mapping[level] || 0;
-  };
-
   // Group sessions by date
   const byDate = sessions.reduce((acc, session) => {
     const date = new Date(session.created_at).toLocaleDateString('en-US', {
@@ -46,7 +37,7 @@ function transformSessionsForChart(sessions: PracticeSession[]) {
 
     // Add overall level score (convert CEFR to numeric)
     if (session.overall_level) {
-      const numericScore = cefrToNumeric(session.overall_level);
+      const numericScore = cefrToNumeric(session.overall_level as CEFRLevel);
       acc[date].scores.push(numericScore);
     } else if (session.overall_score) {
       // Fallback to legacy numeric score if available
@@ -112,7 +103,7 @@ export default function DashboardClient({ sessions, stats }: DashboardClientProp
     ...sessions.map(session => {
       // If session has CEFR level, convert to numeric
       if (session.overall_level) {
-        return cefrToNumeric(session.overall_level);
+        return cefrToNumeric(session.overall_level as CEFRLevel);
       }
       // Fallback to legacy numeric score
       return session.overall_score || 0;

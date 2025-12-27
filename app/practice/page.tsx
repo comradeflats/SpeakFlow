@@ -274,7 +274,7 @@ export default function PracticePage() {
                             Assessments Remaining: <span className="font-bold">{assessmentSessionsRemaining}</span> of {sessionCounts.maxAssessments}
                           </p>
                           <p className="text-xs text-blue-700 mt-1">
-                            The assessment takes 1:30 minutes and determines your CEFR level
+                            The assessment takes up to 1:30 minutes (finish after 30 seconds)
                           </p>
                         </div>
                       </div>
@@ -345,7 +345,7 @@ export default function PracticePage() {
                 <Award className="w-8 h-8 text-blue-600 mx-auto mb-3" />
                 <h3 className="font-semibold text-slate-dark mb-2">Take Assessment</h3>
                 <p className="text-sm text-slate-medium mb-4">
-                  Have a 1-2 minute conversation with our AI to determine your CEFR level accurately.
+                  Have a 30-90 second conversation with our AI to determine your CEFR level accurately.
                 </p>
                 <Button
                   onClick={handleStartAssessment}
@@ -522,7 +522,7 @@ export default function PracticePage() {
                             Practice Sessions Remaining: <span className="font-bold">{practiceSessionsRemaining}</span> of {sessionCounts.maxPractice}
                           </p>
                           <p className="text-xs text-blue-700 mt-1">
-                            Each conversation lasts 1:30 minutes and provides detailed feedback
+                            Each conversation lasts 30-90 seconds and provides detailed feedback
                           </p>
                         </div>
                       </div>
@@ -629,7 +629,7 @@ export default function PracticePage() {
               <Lightbulb size={20} className="flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm">
-                  <strong>Pro Tip:</strong> Click Start Practice to begin a natural conversation. The AI will guide you through the discussion and provide detailed feedback. Conversations last 1:30 minutes (90 seconds). Don't worry about making mistakes - just focus on practicing!
+                  <strong>Pro Tip:</strong> Click Start Practice to begin a natural conversation. The AI will guide you through the discussion and provide detailed feedback. Conversations last 30-90 seconds (finish anytime after 30 seconds). Don't worry about making mistakes - just focus on practicing!
                 </p>
               </div>
             </Alert>
