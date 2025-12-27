@@ -1,14 +1,16 @@
 import React from 'react';
 import { UserStats } from '@/lib/firestore-db';
 import StatCard from './ui/StatCard';
+import ElevenLabsCreditsDisplay from './ElevenLabsCreditsDisplay';
 
 interface StatsGridProps {
   stats: UserStats | null;
   streak: number;
   bestScore: number;
+  showElevenLabsCredits?: boolean;
 }
 
-const StatsGrid: React.FC<StatsGridProps> = ({ stats, streak, bestScore }) => {
+const StatsGrid: React.FC<StatsGridProps> = ({ stats, streak, bestScore, showElevenLabsCredits = false }) => {
   // Convert numeric score to CEFR level
   const getCEFRLevel = (score: number): string => {
     if (score >= 5.5) return 'C2';
@@ -25,7 +27,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({ stats, streak, bestScore }) => {
   const bestLevel = getCEFRLevel(bestScore);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className={`grid grid-cols-1 ${showElevenLabsCredits ? 'md:grid-cols-5' : 'md:grid-cols-4'} gap-4`}>
       {/* Current Level - Large gradient card */}
       <div className="bg-gradient-to-br from-ocean-600 to-ocean-700 rounded-xl p-6 text-white shadow-lg">
         <p className="text-xs font-semibold opacity-90 uppercase tracking-wide">
@@ -62,6 +64,13 @@ const StatsGrid: React.FC<StatsGridProps> = ({ stats, streak, bestScore }) => {
         variant="warning"
         subtext="Personal best"
       />
+
+      {/* ElevenLabs Credits (Optional) */}
+      {showElevenLabsCredits && (
+        <div className="md:col-span-1">
+          <ElevenLabsCreditsDisplay size="lg" showRefresh={true} />
+        </div>
+      )}
     </div>
   );
 };

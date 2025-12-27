@@ -50,6 +50,7 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
   const [error, setError] = useState<string | null>(null);
   const transcriptRef = useRef<string>('');
   const hasGreetedRef = useRef<boolean>(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Audio recording state
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
@@ -75,6 +76,13 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
       onMessagesUpdate(messages);
     }
   }, [messages, onMessagesUpdate]);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   // Debug: Log which agent ID is being used
   useEffect(() => {
@@ -539,6 +547,7 @@ export const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
                     </div>
                   </div>
                 ))}
+                <div ref={messagesEndRef} />
               </div>
             ) : (
               <div className="text-slate-medium italic text-center py-12">

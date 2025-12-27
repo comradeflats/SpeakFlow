@@ -143,7 +143,7 @@ export default function DashboardClient({ sessions, stats }: DashboardClientProp
         </div>
 
         {/* Stats Grid */}
-        <StatsGrid stats={stats} streak={streak} bestScore={bestScore} />
+        <StatsGrid stats={stats} streak={streak} bestScore={bestScore} showElevenLabsCredits={true} />
 
         {/* Progress Chart */}
         <ProgressChart data={chartData} />

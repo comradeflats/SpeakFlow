@@ -67,6 +67,7 @@ export const LevelAssessment: React.FC<LevelAssessmentProps> = ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
   const hasStartedRecordingRef = useRef<boolean>(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const {
     status,
@@ -138,6 +139,13 @@ export const LevelAssessment: React.FC<LevelAssessmentProps> = ({
       handleStartAssessment();
     }
   }, []);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   const startAudioRecording = async () => {
     try {
@@ -368,6 +376,7 @@ export const LevelAssessment: React.FC<LevelAssessmentProps> = ({
                       </div>
                     </div>
                   ))}
+                  <div ref={messagesEndRef} />
                 </div>
               </div>
             )}

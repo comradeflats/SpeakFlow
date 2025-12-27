@@ -14,6 +14,7 @@ import Spinner from '@/components/ui/Spinner';
 import { TopicId, getTopicById } from '@/lib/conversation-topics';
 import CEFRLevelSelector from '@/components/CEFRLevelSelector';
 import { LanguagePicker } from '@/components/LanguagePicker';
+import ElevenLabsCreditsDisplay from '@/components/ElevenLabsCreditsDisplay';
 
 const DEFAULT_TOPIC: TopicId = 'casual';
 const DEFAULT_LEVEL: CEFRLevel = 'B1';
@@ -259,56 +260,70 @@ export default function PracticePage() {
             Back to Home
           </Link>
 
-          {/* Assessment Usage Counter */}
+          {/* Assessment Usage Counter + Credits - Side by Side */}
           {sessionCounts && assessmentSessionsRemaining !== null && (
-            <div className="mb-8">
-              {assessmentSessionsRemaining > 0 ? (
-                <Alert variant="info" className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-blue-900">
-                        Assessments Remaining: <span className="font-bold">{assessmentSessionsRemaining}</span> of {sessionCounts.maxAssessments}
-                      </p>
-                      <p className="text-xs text-blue-700 mt-1">
-                        The assessment takes 1:30 minutes and determines your CEFR level
-                      </p>
-                    </div>
-                  </div>
-                </Alert>
-              ) : (
-                <Alert variant="error" className="p-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-red-900 mb-2">
-                      ✅ Assessment Completed
-                    </h3>
-                    <p className="text-sm text-red-700 mb-3">
-                      You've already completed your CEFR level assessment. Watch our comprehensive demo video to see all SpeakFlow features!
-                    </p>
-                    <a
-                      href="#"
-                      className="inline-block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium"
-                    >
-                      🎥 Watch Demo Video
-                    </a>
-                  </div>
-                </Alert>
-              )}
+            <div className="mb-8 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Left: Assessment Counter */}
+                <div>
+                  {assessmentSessionsRemaining > 0 ? (
+                    <Alert variant="info" className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-blue-900">
+                            Assessments Remaining: <span className="font-bold">{assessmentSessionsRemaining}</span> of {sessionCounts.maxAssessments}
+                          </p>
+                          <p className="text-xs text-blue-700 mt-1">
+                            The assessment takes 1:30 minutes and determines your CEFR level
+                          </p>
+                        </div>
+                      </div>
+                    </Alert>
+                  ) : (
+                    <Alert variant="error" className="p-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-red-900 mb-2">
+                          ✅ Assessment Completed
+                        </h3>
+                        <p className="text-sm text-red-700 mb-3">
+                          You've already completed your CEFR level assessment. Watch our comprehensive demo video to see all SpeakFlow features!
+                        </p>
+                        <a
+                          href="#"
+                          className="inline-block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium"
+                        >
+                          🎥 Watch Demo Video
+                        </a>
+                      </div>
+                    </Alert>
+                  )}
+                </div>
+
+                {/* Right: ElevenLabs Credits */}
+                <div>
+                  <ElevenLabsCreditsDisplay size="md" />
+                </div>
+              </div>
             </div>
           )}
 
-          {/* Feedback Language Selection */}
-          <div className="mb-8 max-w-3xl mx-auto">
-            <div className="bg-white rounded-lg border-2 border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-slate-dark mb-3">
-                Feedback Language
-              </h3>
-              <p className="text-sm text-slate-medium mb-4">
-                All feedback and analysis will be provided in this language
-              </p>
-              <LanguagePicker
-                selectedLanguage={feedbackLanguage}
-                onLanguageChange={setFeedbackLanguage}
-              />
+          {/* Feedback Language Selection - Compact */}
+          <div className="mb-8 max-w-4xl mx-auto">
+            <div className="bg-white rounded-lg border border-gray-200 p-4">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-dark">
+                    Feedback Language
+                  </h3>
+                  <p className="text-xs text-slate-medium mt-1">
+                    Analysis will be provided in this language
+                  </p>
+                </div>
+                <LanguagePicker
+                  selectedLanguage={feedbackLanguage}
+                  onLanguageChange={setFeedbackLanguage}
+                />
+              </div>
             </div>
           </div>
 
@@ -493,40 +508,50 @@ export default function PracticePage() {
             Back to Home
           </Link>
 
-          {/* Session Usage Counter */}
+          {/* Session Usage Counter + Credits - Side by Side */}
           {sessionCounts && practiceSessionsRemaining !== null && (
             <div className="mb-8 max-w-4xl mx-auto">
-              {practiceSessionsRemaining > 0 ? (
-                <Alert variant="info" className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-blue-900">
-                        Practice Sessions Remaining: <span className="font-bold">{practiceSessionsRemaining}</span> of {sessionCounts.maxPractice}
-                      </p>
-                      <p className="text-xs text-blue-700 mt-1">
-                        Each conversation lasts 1:30 minutes and provides detailed feedback
-                      </p>
-                    </div>
-                  </div>
-                </Alert>
-              ) : (
-                <Alert variant="error" className="p-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-red-900 mb-2">
-                      ✅ Practice Sessions Completed
-                    </h3>
-                    <p className="text-sm text-red-700 mb-3">
-                      You've used all {sessionCounts.maxPractice} practice sessions. Watch our comprehensive demo video to see all SpeakFlow features!
-                    </p>
-                    <a
-                      href="#"
-                      className="inline-block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium"
-                    >
-                      🎥 Watch Demo Video
-                    </a>
-                  </div>
-                </Alert>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Left: Practice Sessions Counter */}
+                <div>
+                  {practiceSessionsRemaining > 0 ? (
+                    <Alert variant="info" className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-blue-900">
+                            Practice Sessions Remaining: <span className="font-bold">{practiceSessionsRemaining}</span> of {sessionCounts.maxPractice}
+                          </p>
+                          <p className="text-xs text-blue-700 mt-1">
+                            Each conversation lasts 1:30 minutes and provides detailed feedback
+                          </p>
+                        </div>
+                      </div>
+                    </Alert>
+                  ) : (
+                    <Alert variant="error" className="p-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-red-900 mb-2">
+                          ✅ Practice Sessions Completed
+                        </h3>
+                        <p className="text-sm text-red-700 mb-3">
+                          You've used all {sessionCounts.maxPractice} practice sessions. Watch our comprehensive demo video to see all SpeakFlow features!
+                        </p>
+                        <a
+                          href="#"
+                          className="inline-block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium"
+                        >
+                          🎥 Watch Demo Video
+                        </a>
+                      </div>
+                    </Alert>
+                  )}
+                </div>
+
+                {/* Right: ElevenLabs Credits */}
+                <div>
+                  <ElevenLabsCreditsDisplay size="md" showRefresh={true} />
+                </div>
+              </div>
             </div>
           )}
 
@@ -539,19 +564,23 @@ export default function PracticePage() {
             </p>
           </div>
 
-          {/* Feedback Language Selection */}
+          {/* Feedback Language Selection - Compact */}
           <div className="mb-8 max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg border-2 border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-slate-dark mb-3">
-                Feedback Language
-              </h3>
-              <p className="text-sm text-slate-medium mb-4">
-                All feedback and analysis will be provided in this language
-              </p>
-              <LanguagePicker
-                selectedLanguage={feedbackLanguage}
-                onLanguageChange={setFeedbackLanguage}
-              />
+            <div className="bg-white rounded-lg border border-gray-200 p-4">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-dark">
+                    Feedback Language
+                  </h3>
+                  <p className="text-xs text-slate-medium mt-1">
+                    Analysis will be provided in this language
+                  </p>
+                </div>
+                <LanguagePicker
+                  selectedLanguage={feedbackLanguage}
+                  onLanguageChange={setFeedbackLanguage}
+                />
+              </div>
             </div>
           </div>
 
