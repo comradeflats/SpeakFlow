@@ -288,12 +288,12 @@ export default function PracticePage() {
                         <p className="text-sm text-red-700 mb-3">
                           You've already completed your CEFR level assessment. Watch our comprehensive demo video to see all SpeakFlow features!
                         </p>
-                        <a
-                          href="#"
+                        <Link
+                          href="/demo"
                           className="inline-block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium"
                         >
                           🎥 Watch Demo Video
-                        </a>
+                        </Link>
                       </div>
                     </Alert>
                   )}
@@ -536,12 +536,12 @@ export default function PracticePage() {
                         <p className="text-sm text-red-700 mb-3">
                           You've used all {sessionCounts.maxPractice} practice sessions. Watch our comprehensive demo video to see all SpeakFlow features!
                         </p>
-                        <a
-                          href="#"
+                        <Link
+                          href="/demo"
                           className="inline-block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium"
                         >
                           🎥 Watch Demo Video
-                        </a>
+                        </Link>
                       </div>
                     </Alert>
                   )}
