@@ -48,13 +48,20 @@ export default function HomePageClient({ user }: { user: any }) {
           </div>
           <span>SpeakFlow</span>
         </div>
-        {user ? (
-          <AuthButton user={user} />
-        ) : (
-          <Button variant="primary" size="md" onClick={() => setIsAuthModalOpen(true)}>
-            Sign In
-          </Button>
-        )}
+        <div className="flex items-center gap-4">
+          {!user && (
+            <div className="hidden md:block text-xs text-gray-600 bg-yellow-50 border-2 border-yellow-400 rounded px-3 py-1.5">
+              <span className="font-medium">Judges:</span> Click Sign In, then <span className="font-medium">Sign Up</span> with any email + password
+            </div>
+          )}
+          {user ? (
+            <AuthButton user={user} />
+          ) : (
+            <Button variant="primary" size="md" onClick={() => setIsAuthModalOpen(true)}>
+              Sign In
+            </Button>
+          )}
+        </div>
       </nav>
 
       {/* Hero Section */}
